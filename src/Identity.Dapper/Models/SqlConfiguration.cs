@@ -50,6 +50,7 @@
         public string RemoveUserFromRoleQuery { get; set; }
         public string RemoveLoginForUserQuery { get; set; }
         public string UpdateClaimForUserQuery { get; set; }
+        public string GetAllUsers { get; set; }
         #endregion
     }
 }

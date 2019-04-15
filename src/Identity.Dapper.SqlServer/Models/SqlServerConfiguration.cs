@@ -38,6 +38,7 @@ namespace Identity.Dapper.SqlServer.Models
             SelectClaimByRoleQuery = "SELECT %SCHEMA%.%ROLECLAIMTABLE%.* FROM %SCHEMA%.%ROLETABLE%, %SCHEMA%.%ROLECLAIMTABLE% WHERE [RoleId] = %ROLEID% AND %SCHEMA%.%ROLECLAIMTABLE%.[RoleId] = %SCHEMA%.%ROLETABLE%.[Id]";
             InsertRoleClaimQuery = "INSERT INTO %SCHEMA%.%TABLENAME% %COLUMNS% VALUES(%VALUES%)";
             DeleteRoleClaimQuery = "DELETE FROM %SCHEMA%.%TABLENAME% WHERE [RoleId] = %ROLEID% AND [ClaimType] = %CLAIMTYPE% AND [ClaimValue] = %CLAIMVALUE%";
+            GetAllUsers = ";WITH Results_CTE AS(SELECT *,ROW_NUMBER() OVER (ORDER BY ID) AS RowNum FROM %USERTABLE%)SELECT * FROM Results_CTE WHERE RowNum >= %TOPROWS% AND RowNum < %TOPROWS% + %LIMIT%";
             RoleTable = "[IdentityRole]";
             UserTable = "[IdentityUser]";
             UserClaimTable = "[IdentityUserClaim]";

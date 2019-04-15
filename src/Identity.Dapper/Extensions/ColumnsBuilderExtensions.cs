@@ -1,6 +1,7 @@
 ﻿using Identity.Dapper.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
@@ -33,11 +34,13 @@ namespace Identity.Dapper
 
                 roleProperties = !idPropertyValue.Equals(defaultIdTypeValue)
                                     ? entity.GetType()
-                                            .GetPublicPropertiesNames(x => !ignoreProperties.Any(y => x.Name == y))
+                                            .GetPublicPropertiesNames(x => !ignoreProperties.Any(y => x.Name == y) 
+                                                                        && !x.CustomAttributes.Any(y => y.AttributeType == typeof(NotMappedAttribute)))
                                     : forInsert 
                                         ? entity.GetType()
                                                 .GetPublicPropertiesNames(y => !y.Name.Equals("Id")
-                                                                               && !ignoreProperties.Any(x => x == y.Name))
+                                                                               && !ignoreProperties.Any(x => x == y.Name)
+                                                                               && !y.CustomAttributes.Any(x => x.AttributeType == typeof(NotMappedAttribute)))
                                         : entity.GetType()
                                                 .GetPublicPropertiesNames(x => !ignoreProperties.Any(y => x.Name == y));
             }
@@ -45,7 +48,8 @@ namespace Identity.Dapper
             {
                 roleProperties = entity.GetType()
                                        .GetPublicPropertiesNames(y => !y.Name.Equals("Id")
-                                                                      && !ignoreProperties.Any(x => x == y.Name));
+                                                                      && !ignoreProperties.Any(x => x == y.Name)
+                                                                      && !y.CustomAttributes.Any(x => x.AttributeType == typeof(NotMappedAttribute)));
             }
 
             roleProperties = roleProperties.Select(y => string.Concat(sqlConfiguration.TableColumnStartNotation, y, sqlConfiguration.TableColumnEndNotation));

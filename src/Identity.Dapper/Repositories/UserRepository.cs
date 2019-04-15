@@ -52,6 +52,47 @@ namespace Identity.Dapper.Repositories
 
         public Task<IEnumerable<TUser>> GetAllAsync() => throw new NotImplementedException();
 
+        public async Task<IEnumerable<TUser>> GetTopUsersAsync(int top, int offset)
+        {
+            try
+            {
+                var selectFunction = new Func<DbConnection, Task<IEnumerable<TUser>>>(async x =>
+                {
+                    var dynamicParameters = new DynamicParameters();
+                    dynamicParameters.Add("TopRows", top);
+                    dynamicParameters.Add("Limit", offset);
+
+                    var query = _queryFactory.GetQuery<GetTopUsers>();
+
+                    var result = await x.QueryAsync<TUser>(sql: query, param: dynamicParameters);
+
+                    return result;
+                });
+
+                DbConnection conn = null;
+                if (_unitOfWork?.Connection == null)
+                {
+                    using (conn = _connectionProvider.Create())
+                    {
+                        await conn.OpenAsync();
+
+                        return await selectFunction(conn);
+                    }
+                }
+                else
+                {
+                    conn = _unitOfWork.CreateOrGetConnection();
+                    return await selectFunction(conn);
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, ex.Message);
+
+                return null;
+            }
+        }
+
         public async Task<TUser> GetByEmailAsync(string email)
         {
             try
